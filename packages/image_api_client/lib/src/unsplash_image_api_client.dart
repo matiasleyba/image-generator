@@ -11,7 +11,8 @@ class UnsplashImageApiClient implements ImageApiClient {
   final UnsplashApi _unsplashApi;
 
   @override
-  Future<String> fetchImage() {
-    return _unsplashApi.getImage();
+  Future<String> fetchImage() async {
+    final unsplashImage = await _unsplashApi.getImage();
+    return unsplashImage.url;
   }
 }

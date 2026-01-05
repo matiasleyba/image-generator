@@ -13,5 +13,20 @@ abstract class UnsplashApi {
 
   @GET('/image')
   /// Get a random photo from Unsplash
-  Future<String> getImage();
+  Future<UnsplashImage> getImage();
+}
+
+/// {@template unsplash_image}
+/// Unsplash Image
+/// {@endtemplate}
+class UnsplashImage {
+  /// {@macro unsplash_image}
+  UnsplashImage({required this.url});
+
+  /// {@macro unsplash_image_from_json}
+  factory UnsplashImage.fromJson(Map<String, dynamic> json) =>
+      UnsplashImage(url: json['url'] as String);
+
+  /// The URL of the image.
+  final String url;
 }
