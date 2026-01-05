@@ -5,6 +5,7 @@ import 'package:image_api_client/image_api_client.dart';
 import 'image_generator/view/image_generator_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

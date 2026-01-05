@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_generator/image_generator/bloc/image_generator_bloc.dart';
+import 'package:image_generator/image_generator/image_generator.dart';
 
 /// {@template image_generator_view}
 /// View that displays a square image centered on screen with a button to load another image.
@@ -13,37 +13,40 @@ class ImageGeneratorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: BlocBuilder<ImageGeneratorBloc, ImageGeneratorState>(
-          builder: (context, state) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      width: 300,
-                      height: 300,
-                      child: ImageContentWidget(),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: state is ImageGeneratorLoading
-                          ? null
-                          : () {
-                              context
-                                  .read<ImageGeneratorBloc>()
-                                  .add(const FetchRandomImageEvent());
-                            },
-                      child: const Text('Load Another Image'),
-                    ),
-                  ],
-                ),
+      body: BlocBuilder<ImageGeneratorBloc, ImageGeneratorState>(
+        builder: (context, state) {
+          final colors = state is ImageGeneratorLoaded ? state.colors : null;
+          final previousColors =
+              state is ImageGeneratorLoaded ? state.previousColors : null;
+          return AnimatedGradientBackground(
+            colors: colors,
+            previousColors: previousColors,
+            child: Container(
+              margin: const EdgeInsets.all(16.0),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox.square(
+                    dimension: 300,
+                    child: ImageContentWidget(),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: state is ImageGeneratorLoading
+                        ? null
+                        : () {
+                            context
+                                .read<ImageGeneratorBloc>()
+                                .add(const FetchRandomImageEvent());
+                          },
+                    child: const Text('Load Another Image'),
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -92,10 +95,7 @@ class LoadingImageWidget extends StatelessWidget {
 /// {@endtemplate}
 class ErrorImageWidget extends StatelessWidget {
   /// {@macro error_image_widget}
-  const ErrorImageWidget({
-    super.key,
-    required this.message,
-  });
+  const ErrorImageWidget({super.key, required this.message});
 
   /// The error message to display.
   final String message;
@@ -107,26 +107,27 @@ class ErrorImageWidget extends StatelessWidget {
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Colors.red,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Colors.red,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              message.length > 200
+                  ? '${message.substring(0, 200)}...'
+                  : message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -137,26 +138,21 @@ class ErrorImageWidget extends StatelessWidget {
 /// {@endtemplate}
 class LoadedImageWidget extends StatelessWidget {
   /// {@macro loaded_image_widget}
-  const LoadedImageWidget({
-    super.key,
-    required this.imageUrl,
-  });
+  const LoadedImageWidget({super.key, required this.imageUrl});
 
   /// The URL of the image to display.
   final String imageUrl;
 
   @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => const LoadingImageWidget(),
-        errorWidget: (context, url, error) => const BrokenImageWidget(),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => const LoadingImageWidget(),
+          errorWidget: (context, url, error) => const BrokenImageWidget(),
+        ),
+      );
 }
 
 /// {@template broken_image_widget}

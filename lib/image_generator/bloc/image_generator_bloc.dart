@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_api_client/image_api_client.dart';
 import 'package:equatable/equatable.dart';
@@ -24,10 +25,32 @@ class ImageGeneratorBloc
     FetchRandomImageEvent event,
     Emitter<ImageGeneratorState> emit,
   ) async {
-    emit(const ImageGeneratorLoading());
+    final previousColors = switch (state) {
+      ImageGeneratorLoading(:final previousColors) => previousColors,
+      ImageGeneratorLoaded(:final previousColors) => previousColors,
+      _ => const <Color>[Colors.white, Colors.grey],
+    };
+
+    emit(ImageGeneratorLoading(previousColors));
     try {
+      // Fetch the image from the API
       final imageUrl = await _imageApiClient.fetchImage();
-      emit(ImageGeneratorLoaded(imageUrl));
+      final imageBytes = await _imageApiClient.fetchImageBytes(imageUrl);
+      final imageProvider = MemoryImage(imageBytes);
+
+      // TODO(matiasleyba): improve color extraction
+      final colorScheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+      );
+
+      // Emit the loaded state with the image and palette
+      emit(
+        ImageGeneratorLoaded(
+          imageUrl,
+          [colorScheme.primary, colorScheme.secondary],
+          previousColors,
+        ),
+      );
     } catch (error) {
       emit(ImageGeneratorError(error.toString()));
     }

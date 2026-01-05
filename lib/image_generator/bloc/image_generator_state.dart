@@ -24,7 +24,12 @@ class ImageGeneratorInitial extends ImageGeneratorState {
 /// {@endtemplate}
 class ImageGeneratorLoading extends ImageGeneratorState {
   /// {@macro image_generator_loading_state}
-  const ImageGeneratorLoading();
+  const ImageGeneratorLoading(this.previousColors);
+
+  final List<Color> previousColors;
+
+  @override
+  List<Object?> get props => [previousColors];
 }
 
 /// {@template image_generator_loaded_state}
@@ -32,13 +37,21 @@ class ImageGeneratorLoading extends ImageGeneratorState {
 /// {@endtemplate}
 class ImageGeneratorLoaded extends ImageGeneratorState {
   /// {@macro image_generator_loaded_state}
-  const ImageGeneratorLoaded(this.imageUrl);
+  const ImageGeneratorLoaded(
+    this.imageUrl,
+    this.colors,
+    this.previousColors,
+  );
 
   /// The URL of the fetched image.
   final String imageUrl;
 
+  final List<Color> colors;
+
+  final List<Color> previousColors;
+
   @override
-  List<Object?> get props => [imageUrl];
+  List<Object?> get props => [imageUrl, colors, previousColors];
 }
 
 /// {@template image_generator_error_state}
