@@ -4,4 +4,4 @@ A new Flutter project.
 
 ## Demo
 
-[View Demo](./demo.mov)
+[View Demo](./demo.mp4)
