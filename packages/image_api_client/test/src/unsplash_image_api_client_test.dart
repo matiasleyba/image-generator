@@ -3,9 +3,9 @@ import 'package:image_api_client/image_api_client.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('ImageApiClient', () {
+  group(UnsplashImageApiClient, () {
     test('can be instantiated', () {
-      expect(ImageApiClient(), isNotNull);
+      expect(UnsplashImageApiClient(), isNotNull);
     });
   });
 }
